@@ -12,9 +12,11 @@ services:
     depends_on:
       - db
     command: >
-      sh -c "python django_app/manage.py makemigrations --no-input &&
-            python django_app/manage.py migrate &&
-            python django_app/manage.py runserver 0.0.0.0:8000"
+      sh -c "cd django_app &&
+            python manage.py makemigrations --no-input &&
+            python manage.py migrate &&
+            python manage.py test &&
+            python manage.py runserver 0.0.0.0:8000"
 
   db:
     container_name: db

@@ -13,13 +13,13 @@ class MissionSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Mission
-        fields = ["cat", "complete", "targets"]
+        fields = ["id", "cat", "complete", "targets"]
 
     def create(self, validated_data):
         targets = validated_data.pop("targets")
         cat = validated_data.get("cat")
 
-        if cat.missions.filter(complete=False).exists():
+        if cat and cat.missions.filter(complete=False).exists():
             raise serializers.ValidationError(f"{cat.name} alreadey have mission")
 
         mission = Mission.objects.create(**validated_data)

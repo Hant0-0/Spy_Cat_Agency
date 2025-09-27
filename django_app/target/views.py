@@ -43,26 +43,35 @@ class TargetDetailAPIView(views.APIView):
             target = Target.objects.select_related("mission").get(mission__id=mission_id, id=target_id)
         except ObjectDoesNotExist:
             return Response(
+                data={"detail": "Target does not found"},
                 status=status.HTTP_404_NOT_FOUND
-            )
-        data = request.data
-        serializer = UpdateNotesTargetSerializer(data=data)
-
-        if not serializer.is_valid():
-            return Response(
-                serializer.errors,
-                status=status.HTTP_400_BAD_REQUEST
             )
 
         if target.mission.complete or target.complete:
             return Response(
-                data={"detail": "Notes cannot be changed if the target or mission has already been completed."}
+                data={"detail": "Notes cannot be changed if the target or mission has already been completed."},
+                status=status.HTTP_409_CONFLICT
+            )
+
+        data = request.data
+        serializer = UpdateNotesTargetSerializer(target, data=data, partial=True)
+
+        if serializer.is_valid():
+            serializer.save()
+
+            return Response(
+                data=serializer.data,
+                status=status.HTTP_200_OK
             )
 
         return Response(
-            data=serializer.data,
-            status=status.HTTP_200_OK
+            serializer.errors,
+            status=status.HTTP_400_BAD_REQUEST
         )
+
+
+
+
 
 class TargetCompleteAPIView(views.APIView):
     permission_classes = [AllowAny]
@@ -97,11 +106,13 @@ class TargetCompleteAPIView(views.APIView):
                     target.mission.save()
 
                 return Response(
+                    data={"detail": "Target completed successful"},
                     status=HTTP_200_OK
                 )
 
         except Target.DoesNotExist:
             return Response(
+                data={"detail": "Target does not found"},
                 status=status.HTTP_404_NOT_FOUND
             )
 

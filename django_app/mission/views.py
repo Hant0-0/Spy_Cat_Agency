@@ -72,6 +72,7 @@ class MissionDetailAPIView(views.APIView):
 
         if mission.cat is not None:
             return Response(
+                data={"detail": "A mission cannot be deleted if it is already assigned to a cat"},
                 status=status.HTTP_409_CONFLICT
             )
 
