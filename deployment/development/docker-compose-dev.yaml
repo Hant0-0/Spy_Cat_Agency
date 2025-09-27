@@ -1,0 +1,31 @@
+services:
+
+  backend:
+    container_name: backend
+    build:
+      context: ../../
+      dockerfile: deployment/development/Dockerfile
+    env_file:
+      - ../../.env
+    ports:
+      - "8000:8000"
+    depends_on:
+      - db
+    command: >
+      sh -c "python django_app/manage.py makemigrations --no-input &&
+            python django_app/manage.py migrate &&
+            python django_app/manage.py runserver 0.0.0.0:8000"
+
+  db:
+    container_name: db
+    image: postgres:latest
+    env_file:
+      - ../../.env
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    restart: always
+
+volumes:
+  postgres_data:
