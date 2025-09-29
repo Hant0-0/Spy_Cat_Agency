@@ -39,7 +39,7 @@ class ListCreateMissionAPIView(views.APIView):
         methods=["GET"]
     )
     def get(self, request):
-        missions = Mission.objects.all()
+        missions = Mission.objects.prefetch_related('targets').all()
         serializer = MissionSerializer(missions, many=True)
 
         return Response(
