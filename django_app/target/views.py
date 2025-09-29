@@ -21,7 +21,7 @@ class TargetDetailAPIView(views.APIView):
     )
     def get(self, request, mission_id, target_id):
         try:
-            target = Target.objects.get(mission__id=mission_id, id=target_id)
+            target = Target.objects.select_related('mission').get(mission__id=mission_id, id=target_id)
         except ObjectDoesNotExist:
             return Response(
                 status=status.HTTP_404_NOT_FOUND
